@@ -1,0 +1,17 @@
+--Armadillomon
+Duel.LoadScript("DigimonProc.lua",false)
+local s,id,o=GetID()
+function s.initial_effect(c)
+	Fusion.AddProcMix(c,true,true,37501183,37501161)
+	Fusion.AddContactProc(c,DigimonProc.contactfil,DigimonProc.contactop,DigimonProc.splimit)
+	local e4=Effect.CreateEffect(c)
+	e4:SetDescription(aux.Stringid(id,0))
+	e4:SetCategory(CATEGORY_SPECIAL_SUMMON)
+	e4:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_F)
+	e4:SetProperty(EFFECT_FLAG_DELAY)
+	e4:SetCode(EVENT_DESTROYED)
+	e4:SetCondition(DigimonProc.eggcon)
+	e4:SetTarget(DigimonProc.eggtg)
+	e4:SetOperation(DigimonProc.eggop)
+	c:RegisterEffect(e4)
+end
