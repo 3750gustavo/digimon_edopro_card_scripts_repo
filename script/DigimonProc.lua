@@ -26,7 +26,7 @@ if not DigimonProc then
         Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
         local sg = g:Select(tp,1,1,nil)
         local tc = sg:GetFirst()
-        if #sg > 0 then 
+        if #sg > 0 then
             Duel.BreakEffect()
             Duel.SpecialSummonStep(tc,SUMMON_TYPE_FUSION,tp,tp,true,true,POS_FACEUP)
             tc:SetStatus(STATUS_SPSUMMON_STEP,false)
@@ -47,7 +47,7 @@ if not DigimonProc then
         Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
         local sg = g:Select(tp,1,1,nil)
         local tc = sg:GetFirst()
-        if #sg > 0 then 
+        if #sg > 0 then
             Duel.BreakEffect()
             Duel.SpecialSummonStep(tc,SUMMON_TYPE_FUSION,tp,tp,true,true,POS_FACEUP)
             tc:SetStatus(STATUS_SPSUMMON_STEP,false)
@@ -68,7 +68,7 @@ if not DigimonProc then
         Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
         local sg = g:Select(tp,1,1,nil)
         local tc = sg:GetFirst()
-        if #sg > 0 then 
+        if #sg > 0 then
             Duel.BreakEffect()
             Duel.SpecialSummonStep(tc,SUMMON_TYPE_FUSION,tp,tp,true,true,POS_FACEUP)
             tc:SetStatus(STATUS_SPSUMMON_STEP,false)
@@ -99,7 +99,7 @@ if not DigimonProc then
     -- @param c Card: O Digimon a ser verificado.
     -- @return boolean: Verdadeiro se o Digimon tem devolução, falso caso contrário.
     function DigimonProc.HasDevolve(tc,code)
-        Debug.ShowHint("checando grupo")
+        -- Debug.ShowHint("checando grupo") -- Removed to prevent memory leaks
         local g = Duel.GetMatchingGroup(DigimonProc.extra_check,tc:GetControler(),LOCATION_EXTRA,0,nil,tc)
         return #g>0
     end
@@ -134,13 +134,13 @@ if not DigimonProc then
     -- @param nivelmax int: O nível máximo das evoluções retornadas.
     -- @return Group: Um grupo de Cards representando as próximas evoluções possíveis.
     function DigimonProc.GetEvolutionMax(c,code,nivelmax)
-        if c==nil then return nil end
+        if c==nil then return Group.CreateGroup() end
         if DigimonProc.HasEvolution(c,code) then
             local g = Duel.GetMatchingGroup(Card.ListsCodeAsMaterial,c:GetControler(),LOCATION_EXTRA,0,nil,code)
             g = g:Filter(aux.FilterBoolFunction(Card.IsLevelBelow,nivelmax),nil)
             return g
         else
-            return nil
+            return Group.CreateGroup()
         end
     end
 
@@ -168,29 +168,35 @@ if not DigimonProc then
             while true do
                 if c:GetLevel() < nivel then --deseja evoluir
                     local g = DigimonProc.GetEvolution(c,code)
-                    if g then
-                        local tc = g:Select(c:GetControler(),1,1,false,c):GetFirst()
-                        if tc then
-                            if tc:GetLevel() == nivel then --achamos o nivel desejado
-                                return tc
-                            else -- nao achamos o nivel desejado
-                                c = tc --escolha um ramo de evolucao
-                                code = tc:GetOriginalCode()
+                    if g and #g>0 then
+                        local sg = g:Select(c:GetControler(),1,1,false,c)
+                        if sg and #sg>0 then
+                            local tc = sg:GetFirst()
+                            if tc then
+                                if tc:GetLevel() == nivel then --achamos o nivel desejado
+                                    return tc
+                                else -- nao achamos o nivel desejado
+                                    c = tc --escolha um ramo de evolucao
+                                    code = tc:GetOriginalCode()
+                                end
                             end
                         end
                     else
-                        break    
+                        break
                     end
                 else -- deseja devoluir
                     local g = DigimonProc.GetDevolve(c,code)
-                    if g then
-                        local tc = g:Select(c:GetControler(),1,1,false,c):GetFirst()
-                        if tc then
-                            if tc:GetLevel() == nivel then --achamos o nivel desejado
-                                return tc
-                            else -- nao achamos o nivel desejado
-                                c = tc --escolha um ramo de evolucao
-                                code = tc:GetOriginalCode()
+                    if g and #g>0 then
+                        local sg = g:Select(c:GetControler(),1,1,false,c)
+                        if sg and #sg>0 then
+                            local tc = sg:GetFirst()
+                            if tc then
+                                if tc:GetLevel() == nivel then --achamos o nivel desejado
+                                    return tc
+                                else -- nao achamos o nivel desejado
+                                    c = tc --escolha um ramo de evolucao
+                                    code = tc:GetOriginalCode()
+                                end
                             end
                         end
                     else
@@ -247,7 +253,7 @@ if not DigimonProc then
                             end
                         end
                     else
-                        break    
+                        break
                     end
                 else -- deseja devoluir
                     local g = DigimonProc.GetDevolve(c,code)
@@ -298,25 +304,25 @@ if not DigimonProc then
                         fim = false
                         return grupo
                     end
-                else 
+                else
                     local g = DigimonProc.GetDevolve(c,code)
-                    if g then 
+                    if g then
                         local tc = g:Select(c:GetControler(),1,1,false,c):GetFirst()
-                        if tc then 
-                            if tc:GetLevel()==nivel then 
-                                return g 
-                            else 
-                                c = tc 
-                                code = tc:GetOriginalCode() 
-                            end 
-                        end 
-                    else 
-                        fim = false 
-                        return grupo 
-                    end 
-                end 
-            end 
-        end 
+                        if tc then
+                            if tc:GetLevel()==nivel then
+                                return g
+                            else
+                                c = tc
+                                code = tc:GetOriginalCode()
+                            end
+                        end
+                    else
+                        fim = false
+                        return grupo
+                    end
+                end
+            end
+        end
     end
 
     --funcoes auxiliares para brotar digiovo
@@ -351,4 +357,4 @@ if not DigimonProc then
     function DigimonProc.splimit(e,se,sp,st)
         return true
     end
-end    
+end
