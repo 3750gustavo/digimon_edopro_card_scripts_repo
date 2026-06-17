@@ -61,7 +61,7 @@ function s.pctcon(e,tp,eg,ep,ev,re,r,rp)
 	if chk==0 then return true end
   end
   function s.pctop(e,tp,eg,ep,ev,re,r,rp)
-	local token =Duel.CreateToken(tp,37501103)  
+	local token =Duel.CreateToken(tp,37501103)
 	Duel.MoveToField(token,tp,tp,LOCATION_MZONE,POS_FACEUP,true)
   end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
@@ -96,7 +96,8 @@ function s.casco(e,tp,eg,ep,ev,re,r,rp)
 	 local cdef = c:GetDefense()
 	 local atacante = Duel.GetAttacker()
 	 local atacado = Duel.GetAttackTarget()
-	 if not atacado and not atacante then return false end --falso se nao tem os dois
+	 -- Effect only works during monster-vs-monster battles, not direct attacks
+	 if not atacado or not atacante then return false end
 	 if c==atacante and cdef>atacado:GetDefense() then return true end
 	 if c==atacado and cdef>atacante:GetDefense() then return true end
 	 return false
@@ -105,10 +106,11 @@ function s.needle(e,tp,eg,ep,ev,re,r,rp)
 	 local c = e:GetHandler()
 	 local atacante = Duel.GetAttacker()
 	 local atacado = Duel.GetAttackTarget()
-	 if not atacado and not atacante then return end --sai se nao tem os dois
+	 -- Effect only works during monster-vs-monster battles, not direct attacks
+	 if not atacado or not atacante then return end
 	 if c==atacante then
 		local dano = atacado:GetDefense()
-		Duel.Destroy(atacado,REASON_EFFECT) Duel.Damage(1-tp,dano,REASON_EFFECT) 
+		Duel.Destroy(atacado,REASON_EFFECT) Duel.Damage(1-tp,dano,REASON_EFFECT)
 	 end
 	 if c==atacado then
 		local dano = atacante:GetDefense()

@@ -47,7 +47,7 @@ end
 function s.sortecon(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.GetMatchingGroup(s.filterfriends,e:GetHandlerPlayer(),LOCATION_MZONE,0,e:GetHandler())
 	return #g>0
-end	
+end
 function s.sortevalue(e,tp,eg,ep,ev,re,r,rp)
 	local iterations = 3 -- Número de iterações do loop para gerar aleatórios antes de retornar o resultado final
 
@@ -74,7 +74,7 @@ function s.pctcon(e,tp,eg,ep,ev,re,r,rp)
 	if chk==0 then return true end
   end
   function s.pctop(e,tp,eg,ep,ev,re,r,rp)
-	local token =Duel.CreateToken(tp,37501103)  
+	local token =Duel.CreateToken(tp,37501103)
 	Duel.MoveToField(token,tp,tp,LOCATION_MZONE,POS_FACEUP,true)
   end
 function s.casco(e,tp,eg,ep,ev,re,r,rp)
@@ -82,7 +82,8 @@ function s.casco(e,tp,eg,ep,ev,re,r,rp)
 	 local clevel = c:GetLevel()
 	 local atacante = Duel.GetAttacker()
 	 local atacado = Duel.GetAttackTarget()
-	 if not atacado and not atacante then return false end --falso se nao tem os dois
+	 -- Effect only works during monster-vs-monster battles, not direct attacks
+	 if not atacado or not atacante then return false end
 	 if c==atacante and clevel>atacado:GetLevel() then return true end
 	 if c==atacado and clevel>atacante:GetLevel() then return true end
 	 return false
@@ -91,7 +92,8 @@ function s.needle(e,tp,eg,ep,ev,re,r,rp)
 	local c = e:GetHandler()
 	local atacante = Duel.GetAttacker()
 	local atacado = Duel.GetAttackTarget()
-	if not atacado and not atacante then return end
+	-- Effect only works during monster-vs-monster battles, not direct attacks
+	if not atacado or not atacante then return end
 	if c == atacante then
 		Duel.Destroy(atacado,REASON_EFFECT)
 		local dano = c:GetAttack() - atacado:GetAttack()
@@ -113,4 +115,3 @@ function s.needle(e,tp,eg,ep,ev,re,r,rp)
 		end
 	end
 end
-
